@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Navbar from '../components/Navbar';
-import api from '../lib/api';
+import { fetchUsers } from '../lib/api';
 import styles from '../styles/Home.module.css';
 
 export default function Home() {
