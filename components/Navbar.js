@@ -1,26 +1,28 @@
 import Link from 'next/link';
-import { FaHome, FaSearch, FaHeart } from 'react-icons/fa';
 import styles from '../styles/Navbar.module.css';
 
 export default function Navbar() {
   return (
     <nav className={styles.navbar}>
       <div className={styles.container}>
-        <Link href="/">
-          <div className={styles.logo}>
-            <FaHome />
-            <span>Immo<strong>App</strong></span>
-          </div>
+        <Link href="/" className={styles.logo}>
+          ImmoApp
         </Link>
+        
+        <ul className={styles.menu}>
+          <li><Link href="/">Accueil</Link></li>
+          <li><Link href="/properties">Biens</Link></li>
+          <li><Link href="/about">À propos</Link></li>
+          <li><Link href="/contact">Contact</Link></li>
+        </ul>
 
-        <div className={styles.menu}>
-          <Link href="/"><a>Accueil</a></Link>
-          <Link href="/properties"><a><FaSearch /> Rechercher</a></Link>
-          <Link href="/favorites"><a><FaHeart /> Favoris</a></Link>
-        </div>
-
-        <div className={styles.actions}>
-          <Link href="/account/login"><a className={styles.loginBtn}>Connexion</a></Link>
+        <div className={styles.auth}>
+          <Link href="/login" className={styles.loginBtn}>
+            Connexion
+          </Link>
+          <Link href="/signup" className={styles.signupBtn}>
+            Inscription
+          </Link>
         </div>
       </div>
     </nav>
