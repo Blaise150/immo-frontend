@@ -4,7 +4,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import styles from '../styles/Home.module.css';
 
-export default function Home() {
+export default function Properties() {
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -14,11 +14,11 @@ export default function Home() {
 
   const fetchProperties = async () => {
     try {
-      const response = await fetch('https://immo-backend-production-deb8.up.railway.app/api/properties/?page_size=6');
+      const response = await fetch('https://immo-backend-production-deb8.up.railway.app/api/properties/');
       const data = await response.json();
       setProperties(data.results || data);
     } catch (error) {
-      console.error('Error fetching properties:', error);
+      console.error('Error:', error);
     } finally {
       setLoading(false);
     }
@@ -27,30 +27,21 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>ImmoApp - Trouvez votre bien idéal</title>
-        <meta name="description" content="Trouvez votre bien immobilier idéal" />
+        <title>Tous les biens - ImmoApp</title>
       </Head>
 
       <Navbar />
 
       <main>
         <section className={styles.hero}>
-          <h1>Trouvez votre bien idéal</h1>
-          <p>Plus de 100 biens disponibles à Paris, Monaco, Nice, Lyon et Marseille</p>
+          <h1>Tous nos biens</h1>
+          <p>Découvrez l'ensemble de notre catalogue immobilier</p>
         </section>
 
         <section className={styles.properties}>
           <div className={styles.container}>
-            <h2>Biens Disponibles</h2>
-            
             {loading ? (
-              <div className={styles.loading}>
-                <p>Chargement des propriétés...</p>
-              </div>
-            ) : properties.length === 0 ? (
-              <div className={styles.empty}>
-                <p>Aucun bien disponible pour le moment.</p>
-              </div>
+              <p>Chargement...</p>
             ) : (
               <div className={styles.grid}>
                 {properties.map((property) => (
