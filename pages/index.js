@@ -27,20 +27,17 @@ export default function Home() {
     <>
       <Head>
         <title>ImmoApp - Trouvez votre bien idéal</title>
-        <meta name="description" content="Trouvez votre bien immobilier idéal parmi plus de 100 propriétés disponibles" />
-        <link rel="icon" href="/favicon.ico" />
+        <meta name="description" content="Trouvez votre bien immobilier idéal" />
       </Head>
 
       <Navbar />
 
       <main>
-        {/* Hero Section */}
         <section className={styles.hero}>
           <h1>Trouvez votre bien idéal</h1>
           <p>Plus de 100 biens disponibles à Paris, Monaco, Nice, Lyon et Marseille</p>
         </section>
 
-        {/* Properties Section */}
         <section className={styles.properties}>
           <div className={styles.container}>
             <h2>Biens Disponibles</h2>
@@ -59,7 +56,7 @@ export default function Home() {
                   <div key={property.id} className={styles.card}>
                     <div className={styles.cardImage}>
                       <img
-                        src={`https://source.unsplash.com/400x300/?${property.property_type},${property.city}`}
+                        src={`https://picsum.photos/seed/${property.id}/400/300`}
                         alt={property.title}
                       />
                       <span className={styles.badge}>
