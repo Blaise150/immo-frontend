@@ -17,7 +17,7 @@ export default function Home() {
       const data = await response.json();
       setProperties(data.results || data);
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error fetching properties:', error);
     } finally {
       setLoading(false);
     }
@@ -27,21 +27,32 @@ export default function Home() {
     <>
       <Head>
         <title>ImmoApp - Trouvez votre bien idéal</title>
+        <meta name="description" content="Trouvez votre bien immobilier idéal parmi plus de 100 propriétés disponibles" />
+        <link rel="icon" href="/favicon.ico" />
       </Head>
+
       <Navbar />
+
       <main>
+        {/* Hero Section */}
         <section className={styles.hero}>
           <h1>Trouvez votre bien idéal</h1>
           <p>Plus de 100 biens disponibles à Paris, Monaco, Nice, Lyon et Marseille</p>
         </section>
 
+        {/* Properties Section */}
         <section className={styles.properties}>
-          <div className="container">
+          <div className={styles.container}>
             <h2>Biens Disponibles</h2>
+            
             {loading ? (
-              <p>Chargement...</p>
+              <div className={styles.loading}>
+                <p>Chargement des propriétés...</p>
+              </div>
             ) : properties.length === 0 ? (
-              <p>Aucun bien disponible pour le moment.</p>
+              <div className={styles.empty}>
+                <p>Aucun bien disponible pour le moment.</p>
+              </div>
             ) : (
               <div className={styles.grid}>
                 {properties.map((property) => (
@@ -57,7 +68,9 @@ export default function Home() {
                     </div>
                     <div className={styles.cardContent}>
                       <h3>{property.title}</h3>
-                      <p>📍 {property.city} ({property.zip_code})</p>
+                      <p className={styles.location}>
+                        📍 {property.city} ({property.zip_code})
+                      </p>
                       <div className={styles.features}>
                         <span>🛏️ {property.bedrooms} ch.</span>
                         <span>📐 {property.surface} m²</span>

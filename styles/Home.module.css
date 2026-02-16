@@ -1,100 +1,239 @@
-.hero {
+/* Navbar Container */
+.navbar {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 100px 20px;
-  text-align: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
-.hero h1 {
-  font-size: 48px;
-  margin-bottom: 20px;
-}
-
-.hero p {
-  font-size: 20px;
-  opacity: 0.9;
-}
-
-.properties {
-  padding: 80px 20px;
-}
-
-.properties h2 {
-  text-align: center;
-  font-size: 36px;
-  margin-bottom: 50px;
-  color: #2c3e50;
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 30px;
-}
-
-.card {
-  background: white;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  transition: transform 0.3s;
-}
-
-.card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-}
-
-.cardImage {
-  position: relative;
-  height: 250px;
-}
-
-.cardImage img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.badge {
-  position: absolute;
-  bottom: 15px;
-  left: 15px;
-  background: rgba(102, 126, 234, 0.9);
-  color: white;
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.cardContent {
-  padding: 20px;
-}
-
-.cardContent h3 {
-  font-size: 18px;
-  margin-bottom: 10px;
-  color: #2c3e50;
-}
-
-.cardContent p {
-  color: #7f8c8d;
-  font-size: 14px;
-  margin-bottom: 15px;
-}
-
-.features {
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
   display: flex;
-  gap: 15px;
-  margin-bottom: 15px;
-  font-size: 14px;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
 }
 
-.price {
-  font-size: 24px;
+/* Logo */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.5rem;
   font-weight: 700;
+  color: white;
+  text-decoration: none;
+  transition: transform 0.3s ease;
+}
+
+.logo:hover {
+  transform: scale(1.05);
+}
+
+.logoIcon {
+  font-size: 2rem;
+}
+
+.logoText {
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  letter-spacing: 1px;
+}
+
+/* Menu */
+.menu {
+  display: flex;
+  gap: 2rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  align-items: center;
+}
+
+.menu li a {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.menu li a:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.menu li a::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 2px;
+  background: white;
+  transition: width 0.3s ease;
+}
+
+.menu li a:hover::after {
+  width: 80%;
+}
+
+/* Auth Buttons */
+.auth {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.loginBtn,
+.signupBtn {
+  padding: 0.6rem 1.5rem;
+  border-radius: 25px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+  display: inline-block;
+}
+
+.loginBtn {
+  color: white;
+  border: 2px solid white;
+  background: transparent;
+}
+
+.loginBtn:hover {
+  background: white;
   color: #667eea;
-  padding-top: 15px;
-  border-top: 1px solid #eee;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
+}
+
+.signupBtn {
+  background: white;
+  color: #667eea;
+  border: 2px solid white;
+}
+
+.signupBtn:hover {
+  background: transparent;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
+}
+
+/* Burger Menu */
+.burger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  z-index: 1001;
+}
+
+.burger span {
+  width: 28px;
+  height: 3px;
+  background: white;
+  border-radius: 3px;
+  transition: all 0.3s ease;
+}
+
+.burger span.burgerOpen:nth-child(1) {
+  transform: rotate(45deg) translate(8px, 8px);
+}
+
+.burger span.burgerOpen:nth-child(2) {
+  opacity: 0;
+}
+
+.burger span.burgerOpen:nth-child(3) {
+  transform: rotate(-45deg) translate(7px, -7px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .burger {
+    display: flex;
+  }
+
+  .menu {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    height: 100vh;
+    width: 70%;
+    max-width: 300px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    flex-direction: column;
+    padding: 5rem 2rem 2rem;
+    gap: 1.5rem;
+    transition: right 0.4s ease;
+    box-shadow: -5px 0 20px rgba(0, 0, 0, 0.3);
+  }
+
+  .menu.menuOpen {
+    right: 0;
+  }
+
+  .menu li {
+    width: 100%;
+  }
+
+  .menu li a {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 1rem;
+    font-size: 1.1rem;
+  }
+
+  .auth {
+    position: fixed;
+    bottom: 2rem;
+    right: -100%;
+    flex-direction: column;
+    width: 70%;
+    max-width: 300px;
+    padding: 0 2rem;
+    gap: 1rem;
+    transition: right 0.4s ease;
+  }
+
+  .auth.authOpen {
+    right: 0;
+  }
+
+  .loginBtn,
+  .signupBtn {
+    width: 100%;
+    text-align: center;
+    padding: 0.8rem 1.5rem;
+  }
+
+  .logoText {
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .logoText {
+    display: none;
+  }
+
+  .logoIcon {
+    font-size: 2.5rem;
+  }
 }
