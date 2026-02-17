@@ -3,6 +3,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import Navbar from '../../components/Navbar';
+import Footer from '../../components/Footer';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://immo-backend-production-deb8.up.railway.app';
 
@@ -376,6 +377,7 @@ export default function Properties() {
           )}
         </div>
       </main>
+        <Footer />
     </>
   );
 }

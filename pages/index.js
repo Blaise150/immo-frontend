@@ -3,6 +3,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import Navbar from '../components/Navbar';
 import styles from '../styles/Home.module.css';
+import Footer from '../components/Footer';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://immo-backend-production-deb8.up.railway.app';
 
@@ -357,13 +358,10 @@ export default function Home() {
           </div>
         </section>
       </main>
-
-      {/* FOOTER */}
+        
       <footer style={{
         background: '#2c3e50',
-        color: 'white',
-        padding: '30px 20px',
-        textAlign: 'center'
+    
       }}>
         <p>© 2026 ImmoApp - Tous droits réservés</p>
       </footer>
