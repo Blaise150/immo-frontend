@@ -50,9 +50,9 @@ export default function Footer() {
         <div className={styles.section}>
           <h4>Contact</h4>
           <ul className={styles.contact}>
-            <li>📍 123 Avenue de l'Immobilier</li>
-            <li>75001 Paris, France</li>
-            <li>📞 +33 1 23 45 67 89</li>
+            <li>📍 12 Avenue de Toulouse</li>
+            <li> 31000 Toulouse, France</li>
+            <li>📞 +33 5 23 45 67 89</li>
             <li>✉️ contact@immoapp.fr</li>
           </ul>
         </div>
