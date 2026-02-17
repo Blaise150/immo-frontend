@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import Navbar from '../components/Navbar';
-import styles from '../styles/Home.module.css';
 import Footer from '../components/Footer';
+import styles from '../styles/Home.module.css';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://immo-backend-production-deb8.up.railway.app';
 
@@ -201,7 +201,7 @@ export default function Home() {
                   marginBottom: '40px'
                 }}>
                   {properties.map((property) => (
-                    <Link key={property.id} href={`/properties/${property.id}`}>
+                    <Link key={property.id} href={`/property/${property.id}`}>
                       <a style={{ textDecoration: 'none', color: 'inherit' }}>
                         <div style={{
                           background: 'white',
@@ -318,16 +318,6 @@ export default function Home() {
                                   </span>
                                 )}
                               </span>
-                              <span style={{
-                                padding: '5px 12px',
-                                borderRadius: '6px',
-                                fontSize: '12px',
-                                fontWeight: '600',
-                                background: '#d4edda',
-                                color: '#28a745'
-                              }}>
-                                {property.status}
-                              </span>
                             </div>
                           </div>
                         </div>
@@ -358,13 +348,8 @@ export default function Home() {
           </div>
         </section>
       </main>
-        
-      <footer style={{
-        background: '#2c3e50',
-    
-      }}>
-        <p>© 2026 ImmoApp - Tous droits réservés</p>
-      </footer>
+
+      <Footer />
     </>
   );
 }
