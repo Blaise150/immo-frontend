@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import Navbar from '../../components/Navbar';
@@ -22,6 +22,7 @@ export default function PropertyDetail() {
   const fetchProperty = async () => {
     try {
       const response = await fetch(`https://immo-backend-production-deb8.up.railway.app/api/properties/${id}/`);
+      if (!response.ok) throw new Error('Property not found');
       const data = await response.json();
       setProperty(data);
     } catch (error) {
@@ -31,7 +32,6 @@ export default function PropertyDetail() {
     }
   };
 
-  // Générer plusieurs images pour le slider
   const images = property ? Array.from({ length: 6 }, (_, i) => 
     `https://picsum.photos/seed/${property.id}-${i}/800/600`
   ) : [];
@@ -40,7 +40,9 @@ export default function PropertyDetail() {
     return (
       <>
         <Navbar />
-        <div className={styles.loading}>Chargement...</div>
+        <div style={{ textAlign: 'center', padding: '4rem' }}>
+          <p>Chargement...</p>
+        </div>
         <Footer />
       </>
     );
@@ -50,7 +52,12 @@ export default function PropertyDetail() {
     return (
       <>
         <Navbar />
-        <div className={styles.error}>Propriété introuvable</div>
+        <div style={{ textAlign: 'center', padding: '4rem' }}>
+          <h1>Propriété introuvable</h1>
+          <Link href="/properties">
+            <a style={{ color: '#667eea' }}>← Retour aux biens</a>
+          </Link>
+        </div>
         <Footer />
       </>
     );
@@ -60,13 +67,11 @@ export default function PropertyDetail() {
     <>
       <Head>
         <title>{property.title} - ImmoApp</title>
-        <meta name="description" content={property.description} />
       </Head>
 
       <Navbar />
 
       <main className={styles.detailPage}>
-        {/* Breadcrumb */}
         <div className={styles.breadcrumb}>
           <div className={styles.container}>
             <Link href="/">Accueil</Link>
@@ -79,7 +84,6 @@ export default function PropertyDetail() {
 
         <div className={styles.container}>
           <div className={styles.mainContent}>
-            {/* Galerie d'images */}
             <div className={styles.imageGallery}>
               <div className={styles.mainImage}>
                 <img src={images[currentImage]} alt={property.title} />
@@ -115,7 +119,6 @@ export default function PropertyDetail() {
               </div>
             </div>
 
-            {/* Informations principales */}
             <div className={styles.propertyInfo}>
               <h1>{property.title}</h1>
               <p className={styles.location}>
@@ -158,13 +161,11 @@ export default function PropertyDetail() {
                 </div>
               </div>
 
-              {/* Description */}
               <div className={styles.description}>
                 <h2>Description</h2>
                 <p>{property.description}</p>
               </div>
 
-              {/* Caractéristiques */}
               <div className={styles.characteristics}>
                 <h2>Caractéristiques</h2>
                 <div className={styles.charGrid}>
@@ -197,7 +198,6 @@ export default function PropertyDetail() {
             </div>
           </div>
 
-          {/* Sidebar Contact */}
           <aside className={styles.sidebar}>
             <div className={styles.contactCard}>
               <div className={styles.agencyInfo}>
@@ -212,45 +212,19 @@ export default function PropertyDetail() {
                 📞 Afficher le numéro
               </button>
 
-              <form className={styles.contactForm}>
+              <form className={styles.contactForm} onSubmit={(e) => e.preventDefault()}>
                 <h4>Contactez l'agence</h4>
-                
-                <input
-                  type="text"
-                  placeholder="Prénom *"
-                  required
-                />
-                
-                <input
-                  type="text"
-                  placeholder="Nom *"
-                  required
-                />
-                
-                <input
-                  type="email"
-                  placeholder="Email *"
-                  required
-                />
-                
-                <input
-                  type="tel"
-                  placeholder="Téléphone *"
-                  required
-                />
-                
-                <textarea
-                  placeholder="Votre message..."
-                  rows="4"
-                ></textarea>
-
+                <input type="text" placeholder="Prénom *" required />
+                <input type="text" placeholder="Nom *" required />
+                <input type="email" placeholder="Email *" required />
+                <input type="tel" placeholder="Téléphone *" required />
+                <textarea placeholder="Votre message..." rows="4"></textarea>
                 <button type="submit" className={styles.submitBtn}>
                   ✉️ Envoyer
                 </button>
               </form>
             </div>
 
-            {/* Prix au m² */}
             <div className={styles.priceInfo}>
               <h4>Prix au m²</h4>
               <div className={styles.pricePerSqm}>
