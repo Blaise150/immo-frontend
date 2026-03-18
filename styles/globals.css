@@ -423,3 +423,7 @@ label {
   background: #667eea;
   color: white;
 }
+/* ── Animation globale pour spinners ── */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
