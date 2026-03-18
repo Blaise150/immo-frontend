@@ -1,237 +1,226 @@
-import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
+import { getProperty, sendContactMessage } from '../../lib/api';
 import styles from '../../styles/PropertyDetail.module.css';
+
+const TYPE_LABELS = {
+  appartement: 'Appartement',
+  maison: 'Maison',
+  studio: 'Studio',
+  villa: 'Villa',
+  terrain: 'Terrain',
+};
 
 export default function PropertyDetail() {
   const router = useRouter();
   const { id } = router.query;
+
   const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentImage, setCurrentImage] = useState(0);
 
+  const [form, setForm] = useState({ first_name: '', last_name: '', email: '', phone: '', message: '' });
+  const [contactStatus, setContactStatus] = useState('idle'); // idle | sending | success | error
+  const [showPhone, setShowPhone] = useState(false);
+
   useEffect(() => {
-    if (id) {
-      fetchProperty();
-    }
+    if (!id) return;
+    (async () => {
+      try {
+        const res = await getProperty(id);
+        setProperty(res.data);
+      } catch {
+        setProperty(null);
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, [id]);
 
-  const fetchProperty = async () => {
+  const images = property
+    ? Array.from({ length: 6 }, (_, i) => `https://picsum.photos/seed/${property.id}-${i}/800/600`)
+    : [];
+
+  const handleFormChange = (e) =>
+    setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
+
+  const handleContactSubmit = async (e) => {
+    e.preventDefault();
+    setContactStatus('sending');
     try {
-      const response = await fetch(`https://immo-backend-production-deb8.up.railway.app/api/properties/${id}/`);
-      if (!response.ok) throw new Error('Property not found');
-      const data = await response.json();
-      setProperty(data);
-    } catch (error) {
-      console.error('Error:', error);
-    } finally {
-      setLoading(false);
+      await sendContactMessage({ ...form, property: id });
+      setContactStatus('success');
+      setForm({ first_name: '', last_name: '', email: '', phone: '', message: '' });
+    } catch {
+      setContactStatus('error');
     }
   };
 
-  const images = property ? Array.from({ length: 6 }, (_, i) => 
-    `https://picsum.photos/seed/${property.id}-${i}/800/600`
-  ) : [];
+  if (loading) return (
+    <>
+      <Navbar />
+      <div className={styles.loadingPage}><div className={styles.spinner} /></div>
+      <Footer />
+    </>
+  );
 
-  if (loading) {
-    return (
-      <>
-        <Navbar />
-        <div style={{ textAlign: 'center', padding: '4rem' }}>
-          <p>Chargement...</p>
-        </div>
-        <Footer />
-      </>
-    );
-  }
+  if (!property) return (
+    <>
+      <Navbar />
+      <div className={styles.notFound}>
+        <h1>Bien introuvable</h1>
+        <p>Ce bien n'existe pas ou a été retiré.</p>
+        <Link href="/properties" className={styles.backLink}>← Retour aux biens</Link>
+      </div>
+      <Footer />
+    </>
+  );
 
-  if (!property) {
-    return (
-      <>
-        <Navbar />
-        <div style={{ textAlign: 'center', padding: '4rem' }}>
-          <h1>Propriété introuvable</h1>
-          <Link href="/properties">
-            <a style={{ color: '#667eea' }}>← Retour aux biens</a>
-          </Link>
-        </div>
-        <Footer />
-      </>
-    );
-  }
+  const pricePerSqm = Math.round(property.price / property.surface);
 
   return (
     <>
       <Head>
-        <title>{property.title} - ImmoApp</title>
+        <title>{property.title} — ImmoApp</title>
+        <meta name="description" content={property.description?.slice(0, 160)} />
       </Head>
 
       <Navbar />
 
-      <main className={styles.detailPage}>
+      <main className={styles.page}>
+        {/* Fil d'Ariane */}
         <div className={styles.breadcrumb}>
           <div className={styles.container}>
             <Link href="/">Accueil</Link>
-            <span> › </span>
+            <span> / </span>
             <Link href="/properties">Biens</Link>
-            <span> › </span>
-            <span>{property.city}</span>
+            <span> / </span>
+            <span>{property.title}</span>
           </div>
         </div>
 
         <div className={styles.container}>
-          <div className={styles.mainContent}>
-            <div className={styles.imageGallery}>
-              <div className={styles.mainImage}>
-                <img src={images[currentImage]} alt={property.title} />
-                <span className={styles.badge}>
-                  {property.transaction_type === 'vente' ? 'À Vendre' : 'À Louer'}
-                </span>
-                <button 
-                  className={styles.prevBtn}
-                  onClick={() => setCurrentImage(prev => prev > 0 ? prev - 1 : images.length - 1)}
-                >
-                  ‹
-                </button>
-                <button 
-                  className={styles.nextBtn}
-                  onClick={() => setCurrentImage(prev => prev < images.length - 1 ? prev + 1 : 0)}
-                >
-                  ›
-                </button>
-                <div className={styles.imageCounter}>
-                  {currentImage + 1} / {images.length}
+          <div className={styles.layout}>
+            {/* Colonne principale */}
+            <div className={styles.main}>
+              {/* Galerie */}
+              <div className={styles.gallery}>
+                <div className={styles.galleryMain}>
+                  <img src={images[currentImage]} alt={`Photo ${currentImage + 1}`} />
+                  <span className={`${styles.galleryBadge} ${property.transaction_type === 'vente' ? styles.badgeSale : styles.badgeRent}`}>
+                    {property.transaction_type === 'vente' ? 'À Vendre' : 'À Louer'}
+                  </span>
+                  <button className={styles.navBtn} style={{ left: '12px' }}
+                    onClick={() => setCurrentImage((i) => (i - 1 + images.length) % images.length)}>
+                    ‹
+                  </button>
+                  <button className={styles.navBtn} style={{ right: '12px' }}
+                    onClick={() => setCurrentImage((i) => (i + 1) % images.length)}>
+                    ›
+                  </button>
+                  <span className={styles.counter}>{currentImage + 1} / {images.length}</span>
+                </div>
+                <div className={styles.thumbs}>
+                  {images.map((img, i) => (
+                    <img key={i} src={img} alt=""
+                      className={i === currentImage ? styles.thumbActive : ''}
+                      onClick={() => setCurrentImage(i)} />
+                  ))}
                 </div>
               </div>
-              <div className={styles.thumbnails}>
-                {images.map((img, index) => (
-                  <img
-                    key={index}
-                    src={img}
-                    alt={`Photo ${index + 1}`}
-                    className={currentImage === index ? styles.activeThumbnail : ''}
-                    onClick={() => setCurrentImage(index)}
-                  />
-                ))}
+
+              {/* Infos */}
+              <div className={styles.info}>
+                <h1>{property.title}</h1>
+                <p className={styles.address}>
+                  📍 {property.address}, {property.city} {property.zip_code}
+                </p>
+                <div className={styles.price}>
+                  {Number(property.price).toLocaleString('fr-FR')} €
+                  {property.transaction_type === 'location' && <small>/mois</small>}
+                </div>
+
+                <div className={styles.features}>
+                  <div className={styles.feat}><span>📐</span><strong>{property.surface} m²</strong><p>Surface</p></div>
+                  <div className={styles.feat}><span>🛏</span><strong>{property.bedrooms}</strong><p>Chambres</p></div>
+                  <div className={styles.feat}><span>🚿</span><strong>{property.bathrooms}</strong><p>Sdb</p></div>
+                  <div className={styles.feat}><span>🏠</span><strong>{TYPE_LABELS[property.property_type] || property.property_type}</strong><p>Type</p></div>
+                </div>
+
+                {property.description && (
+                  <div className={styles.section}>
+                    <h2>Description</h2>
+                    <p>{property.description}</p>
+                  </div>
+                )}
+
+                <div className={styles.section}>
+                  <h2>Caractéristiques</h2>
+                  <dl className={styles.specs}>
+                    <div><dt>Type de bien</dt><dd>{TYPE_LABELS[property.property_type] || property.property_type}</dd></div>
+                    <div><dt>Surface habitable</dt><dd>{property.surface} m²</dd></div>
+                    <div><dt>Nombre de chambres</dt><dd>{property.bedrooms}</dd></div>
+                    <div><dt>Salles de bain</dt><dd>{property.bathrooms}</dd></div>
+                    <div><dt>Ville</dt><dd>{property.city}</dd></div>
+                    <div><dt>Code postal</dt><dd>{property.zip_code}</dd></div>
+                    <div><dt>Prix au m²</dt><dd>{pricePerSqm.toLocaleString('fr-FR')} €</dd></div>
+                    <div><dt>Transaction</dt><dd>{property.transaction_type === 'vente' ? 'Vente' : 'Location'}</dd></div>
+                  </dl>
+                </div>
               </div>
             </div>
 
-            <div className={styles.propertyInfo}>
-              <h1>{property.title}</h1>
-              <p className={styles.location}>
-                📍 {property.address}, {property.city} ({property.zip_code})
-              </p>
+            {/* Sidebar */}
+            <aside className={styles.sidebar}>
+              <div className={styles.contactCard}>
+                <div className={styles.agency}>
+                  <div className={styles.agencyIcon}>🏢</div>
+                  <div>
+                    <strong>ImmoApp</strong>
+                    <p>Agence immobilière</p>
+                  </div>
+                </div>
 
-              <div className={styles.price}>
-                {property.price.toLocaleString('fr-FR')} €
-                {property.transaction_type === 'location' && '/mois'}
+                <button
+                  className={styles.phoneBtn}
+                  onClick={() => setShowPhone(!showPhone)}
+                >
+                  {showPhone ? '📞 +33 5 23 45 67 89' : '📞 Afficher le numéro'}
+                </button>
+
+                <form onSubmit={handleContactSubmit} className={styles.contactForm}>
+                  <h3>Envoyer un message</h3>
+
+                  {contactStatus === 'success' && (
+                    <div className={styles.successMsg}>✅ Message envoyé ! Nous vous répondrons rapidement.</div>
+                  )}
+                  {contactStatus === 'error' && (
+                    <div className={styles.errorMsg}>❌ Une erreur est survenue. Veuillez réessayer.</div>
+                  )}
+
+                  <div className={styles.formRow}>
+                    <input name="first_name" type="text" placeholder="Prénom *" value={form.first_name} onChange={handleFormChange} required />
+                    <input name="last_name" type="text" placeholder="Nom *" value={form.last_name} onChange={handleFormChange} required />
+                  </div>
+                  <input name="email" type="email" placeholder="Email *" value={form.email} onChange={handleFormChange} required />
+                  <input name="phone" type="tel" placeholder="Téléphone *" value={form.phone} onChange={handleFormChange} required />
+                  <textarea name="message" rows="3" placeholder="Votre message…" value={form.message} onChange={handleFormChange} />
+                  <button type="submit" disabled={contactStatus === 'sending'}>
+                    {contactStatus === 'sending' ? 'Envoi…' : 'Envoyer'}
+                  </button>
+                </form>
               </div>
 
-              <div className={styles.features}>
-                <div className={styles.feature}>
-                  <span className={styles.icon}>🏠</span>
-                  <div>
-                    <strong>{property.surface} m²</strong>
-                    <p>Surface</p>
-                  </div>
-                </div>
-                <div className={styles.feature}>
-                  <span className={styles.icon}>🛏️</span>
-                  <div>
-                    <strong>{property.bedrooms}</strong>
-                    <p>Chambres</p>
-                  </div>
-                </div>
-                <div className={styles.feature}>
-                  <span className={styles.icon}>🚿</span>
-                  <div>
-                    <strong>{property.bathrooms}</strong>
-                    <p>Salles de bain</p>
-                  </div>
-                </div>
-                <div className={styles.feature}>
-                  <span className={styles.icon}>📦</span>
-                  <div>
-                    <strong>{property.property_type}</strong>
-                    <p>Type</p>
-                  </div>
-                </div>
+              <div className={styles.priceBox}>
+                <p>Prix au m²</p>
+                <strong>{pricePerSqm.toLocaleString('fr-FR')} €/m²</strong>
               </div>
-
-              <div className={styles.description}>
-                <h2>Description</h2>
-                <p>{property.description}</p>
-              </div>
-
-              <div className={styles.characteristics}>
-                <h2>Caractéristiques</h2>
-                <div className={styles.charGrid}>
-                  <div className={styles.charItem}>
-                    <span>Type de bien</span>
-                    <strong>{property.property_type}</strong>
-                  </div>
-                  <div className={styles.charItem}>
-                    <span>Surface</span>
-                    <strong>{property.surface} m²</strong>
-                  </div>
-                  <div className={styles.charItem}>
-                    <span>Chambres</span>
-                    <strong>{property.bedrooms}</strong>
-                  </div>
-                  <div className={styles.charItem}>
-                    <span>Salles de bain</span>
-                    <strong>{property.bathrooms}</strong>
-                  </div>
-                  <div className={styles.charItem}>
-                    <span>Ville</span>
-                    <strong>{property.city}</strong>
-                  </div>
-                  <div className={styles.charItem}>
-                    <span>Code postal</span>
-                    <strong>{property.zip_code}</strong>
-                  </div>
-                </div>
-              </div>
-            </div>
+            </aside>
           </div>
-
-          <aside className={styles.sidebar}>
-            <div className={styles.contactCard}>
-              <div className={styles.agencyInfo}>
-                <div className={styles.agencyLogo}>🏢</div>
-                <div>
-                  <h3>ImmoApp</h3>
-                  <p>Agence immobilière</p>
-                </div>
-              </div>
-
-              <button className={styles.contactBtn}>
-                📞 Afficher le numéro
-              </button>
-
-              <form className={styles.contactForm} onSubmit={(e) => e.preventDefault()}>
-                <h4>Contactez l'agence</h4>
-                <input type="text" placeholder="Prénom *" required />
-                <input type="text" placeholder="Nom *" required />
-                <input type="email" placeholder="Email *" required />
-                <input type="tel" placeholder="Téléphone *" required />
-                <textarea placeholder="Votre message..." rows="4"></textarea>
-                <button type="submit" className={styles.submitBtn}>
-                  ✉️ Envoyer
-                </button>
-              </form>
-            </div>
-
-            <div className={styles.priceInfo}>
-              <h4>Prix au m²</h4>
-              <div className={styles.pricePerSqm}>
-                {Math.round(property.price / property.surface).toLocaleString('fr-FR')} €/m²
-              </div>
-            </div>
-          </aside>
         </div>
       </main>
 
