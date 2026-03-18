@@ -1,52 +1,32 @@
 import { useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { login as apiLogin } from '../lib/api';
 import styles from '../styles/Auth.module.css';
 
 export default function Login() {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  });
+  const router = useRouter();
+  const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
+  const handleChange = (e) =>
+    setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
-
     try {
-      const response = await fetch('https://immo-backend-production-deb8.up.railway.app/api/auth/login/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData)
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        // Stocker le token
-        localStorage.setItem('token', data.access);
-        localStorage.setItem('refresh', data.refresh);
-        // Rediriger vers la page d'accueil
-        window.location.href = '/';
-      } else {
-        setError(data.detail || 'Identifiants incorrects');
-      }
+      const res = await apiLogin(form.email, form.password);
+      localStorage.setItem('token', res.data.access);
+      localStorage.setItem('refresh', res.data.refresh);
+      router.push('/');
     } catch (err) {
-      setError('Erreur de connexion. Veuillez réessayer.');
+      setError(err.response?.data?.detail || 'Identifiants incorrects.');
     } finally {
       setLoading(false);
     }
@@ -55,94 +35,57 @@ export default function Login() {
   return (
     <>
       <Head>
-        <title>Connexion - ImmoApp</title>
+        <title>Connexion — ImmoApp</title>
       </Head>
-
       <Navbar />
-
-      <main className={styles.authPage}>
-        <div className={styles.container}>
-          <div className={styles.authCard}>
-            <div className={styles.authHeader}>
-              <h1>Connexion</h1>
-              <p>Accédez à votre compte ImmoApp</p>
-            </div>
-
-            <form onSubmit={handleSubmit} className={styles.form}>
-              {error && (
-                <div className={styles.errorMessage}>
-                  ⚠️ {error}
-                </div>
-              )}
-
-              <div className={styles.formGroup}>
-                <label htmlFor="email">Email</label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                  placeholder="votre@email.com"
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label htmlFor="password">Mot de passe</label>
-                <input
-                  type="password"
-                  id="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  required
-                  placeholder="••••••••"
-                />
-              </div>
-
-              <div className={styles.formOptions}>
-                <label className={styles.checkbox}>
-                  <input type="checkbox" />
-                  <span>Se souvenir de moi</span>
-                </label>
-                <Link href="/forgot-password" className={styles.forgotLink}>
-                  Mot de passe oublié ?
-                </Link>
-              </div>
-
-              <button 
-                type="submit" 
-                className={styles.submitBtn}
-                disabled={loading}
-              >
-                {loading ? 'Connexion...' : 'Se connecter'}
-              </button>
-            </form>
-
-            <div className={styles.divider}>
-              <span>OU</span>
-            </div>
-
-            <div className={styles.socialLogin}>
-              <button className={styles.socialBtn}>
-                <span>📘</span> Continuer avec Facebook
-              </button>
-              <button className={styles.socialBtn}>
-                <span>🔍</span> Continuer avec Google
-              </button>
-            </div>
-
-            <div className={styles.authFooter}>
-              <p>
-                Vous n'avez pas de compte ?{' '}
-                <Link href="/signup">Créer un compte</Link>
-              </p>
-            </div>
+      <main className={styles.page}>
+        <div className={styles.card}>
+          <div className={styles.cardHeader}>
+            <h1>Connexion</h1>
+            <p>Accédez à votre espace ImmoApp</p>
           </div>
+
+          <form onSubmit={handleSubmit} className={styles.form}>
+            {error && <div className={styles.errorBanner}>{error}</div>}
+
+            <div className={styles.field}>
+              <label htmlFor="email">Adresse e-mail</label>
+              <input
+                id="email" name="email" type="email"
+                value={form.email} onChange={handleChange}
+                placeholder="vous@exemple.fr" required autoComplete="email"
+              />
+            </div>
+
+            <div className={styles.field}>
+              <label htmlFor="password">Mot de passe</label>
+              <input
+                id="password" name="password" type="password"
+                value={form.password} onChange={handleChange}
+                placeholder="••••••••" required autoComplete="current-password"
+              />
+            </div>
+
+            <div className={styles.options}>
+              <label className={styles.checkLabel}>
+                <input type="checkbox" /> Se souvenir de moi
+              </label>
+              <Link href="/forgot-password" className={styles.forgotLink}>
+                Mot de passe oublié ?
+              </Link>
+            </div>
+
+            <button type="submit" className={styles.submitBtn} disabled={loading}>
+              {loading ? 'Connexion…' : 'Se connecter'}
+            </button>
+          </form>
+
+          <p className={styles.switchLine}>
+            Pas encore de compte ?{' '}
+            <Link href="/signup">Créer un compte</Link>
+          </p>
         </div>
       </main>
-
       <Footer />
     </>
   );
